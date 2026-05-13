@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>Segundo Tiempo</title>
+<link href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --fraktur:'UnifrakturMaguntia',serif;
+  --sans:'Inter',sans-serif;
+  --negro:#080808;
+  --papel:#f4f1e8;
+  --amarillo:#f5c800;
+  --amarillo-dim:rgba(245,200,0,0.15);
+  --nav-h:58px;
+  --page-w:1440px;
+}
+html{
+  min-width:var(--page-w);
+  width:var(--page-w);
+  height:100%;
+  overflow:hidden;
+}
+body{
+  width:var(--page-w);
+  height:100%;
+  overflow:hidden;
+  background:var(--negro);
+  color:var(--papel);
+  font-family:var(--sans);
+  cursor:default;
+}
+
+/* ── GRAIN ── */
+body::before{
+  content:'';position:fixed;inset:0;z-index:9998;pointer-events:none;
+  opacity:0.06;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size:160px 160px;
+  animation:grain .3s steps(1) infinite;
+}
+@keyframes grain{
+  0%,100%{background-position:0 0}10%{background-position:-7% -13%}
+  20%{background-position:-15% 6%}30%{background-position:9% -21%}
+  40%{background-position:-5% 29%}50%{background-position:-17% 11%}
+  60%{background-position:13% 3%}70%{background-position:3% 19%}
+  80%{background-position:5% 33%}90%{background-position:-11% 9%}
+}
+
+/* ── INTRO ── */
+#intro{
+  position:fixed;inset:0;z-index:300;
+  background:var(--negro);
+  display:flex;align-items:center;justify-content:center;flex-direction:column;gap:.9rem;
+  transition:opacity 1s ease .3s, visibility 1s ease .3s;
+}
+#intro.done{opacity:0;visibility:hidden;pointer-events:none}
+.intro-img{
+  width:clamp(56px,9vw,90px);height:auto;
+  filter:brightness(0) invert(1);
+  animation:logo-drop 1s cubic-bezier(.22,1,.36,1) forwards;
+}
+@keyframes logo-drop{from{opacity:0;transform:translateY(-18px) scale(.85)}to{opacity:1;transform:none}}
+.intro-line{
+  width:0;height:1px;background:var(--amarillo);
+  animation:grow-line 1.1s ease .5s forwards;
+}
+@keyframes grow-line{to{width:130px}}
+.intro-title{
+  font-family:var(--fraktur);font-size:clamp(1.5rem,3vw,2.6rem);
+  letter-spacing:.04em;color:var(--papel);
+  opacity:0;animation:fade-up .7s ease .8s forwards;
+}
+.intro-sub{
+  font-size:8px;letter-spacing:.28em;text-transform:uppercase;
+  color:var(--amarillo);opacity:0;animation:fade-up .5s ease 1.2s forwards;
+}
+@keyframes fade-up{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
+
+/* ── NAV ── */
+nav{
+  position:fixed;top:0;left:0;width:1440px;height:var(--nav-h);z-index:200;
+  display:flex;align-items:center;justify-content:center;
+  border-bottom:.5px solid rgba(245,200,0,.08);
+}
+.nav-left{
+  position:absolute;left:1.5rem;
+  display:flex;flex-direction:column;gap:9px;align-items:flex-start;
+}
+.hamburger{
+  background:none;border:none;cursor:pointer;padding:3px;
+  display:flex;flex-direction:column;gap:5px;
+}
+.hamburger span{
+  display:block;width:22px;height:1px;background:var(--papel);
+  transition:transform .4s ease, opacity .3s;
+}
+.hamburger.open span:nth-child(1){transform:rotate(45deg) translate(4px,4px)}
+.hamburger.open span:nth-child(2){opacity:0}
+.hamburger.open span:nth-child(3){transform:rotate(-45deg) translate(4px,-4px)}
+
+.audio-btn{
+  background:none;border:none;cursor:pointer;padding:0;
+  display:flex;align-items:center;gap:5px;
+  color:var(--papel);font-family:var(--sans);
+  font-size:8px;letter-spacing:.14em;text-transform:uppercase;
+  opacity:.4;transition:opacity .3s;
+}
+.audio-btn:hover{opacity:.9}
+.audio-dot{
+  width:5px;height:5px;border-radius:50%;background:var(--amarillo);
+  display:none;animation:pdot 1.4s ease infinite;
+}
+.audio-dot.on{display:block}
+@keyframes pdot{0%,100%{opacity:.3;transform:scale(.7)}50%{opacity:1;transform:scale(1.3)}}
+
+.nav-logo{
+  display:flex;align-items:center;gap:10px;user-select:none;
+}
+.nav-logo img{
+  height:30px;width:auto;
+  /* Reemplazá esta ruta con la ubicación real del logo en tu servidor */
+  /* filter:brightness(0) invert(1); */
+}
+.nav-logo-text{
+  font-family:var(--fraktur);font-size:1.05rem;
+  color:var(--papel);letter-spacing:.04em;opacity:.9;
+}
+.frame-ctr{
+  position:absolute;right:1.5rem;
+  font-size:9px;letter-spacing:.2em;opacity:.3;
+  font-variant-numeric:tabular-nums;
+}
+
+/* ── PROGRESS ── */
+.progress{
+  position:fixed;bottom:0;left:0;height:1px;
+  background:var(--amarillo);z-index:200;
+  transition:width .45s ease;width:0%;
+}
+
+/* ── TRACK ── */
+.track{
+  display:flex;
+  width:calc(14 * 1440px);
+  height:100vh;
+  will-change:transform;
+  transition:transform .78s cubic-bezier(.16,1,.3,1);
+}
+
+/* ── FRAMES ── */
+.frame{
+  width:1440px;height:100vh;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  padding:var(--nav-h) 4rem 112px;
+  position:relative;overflow:hidden;
+}
+
+/* paleta negra/blanca/amarilla */
+.frame[data-i="0"] {background:#080808}
+.frame[data-i="1"] {background:#f4f1e8}
+.frame[data-i="2"] {background:#f5c800}
+.frame[data-i="3"] {background:#080808}
+.frame[data-i="4"] {background:#f4f1e8}
+.frame[data-i="5"] {background:#080808}
+.frame[data-i="6"] {background:#f5c800}
+.frame[data-i="7"] {background:#080808}
+.frame[data-i="8"] {background:#f4f1e8}
+.frame[data-i="9"] {background:#080808}
+.frame[data-i="10"]{background:#f5c800}
+.frame[data-i="11"]{background:#080808}
+.frame[data-i="12"]{background:#f4f1e8}
+.frame[data-i="13"]{background:#080808}
+
+/* color de texto según fondo */
+.frame[data-i="1"] .frame-label,
+.frame[data-i="4"] .frame-label,
+.frame[data-i="8"] .frame-label,
+.frame[data-i="12"] .frame-label{color:rgba(8,8,8,.4)}
+.frame[data-i="1"] .frame-title,
+.frame[data-i="4"] .frame-title,
+.frame[data-i="8"] .frame-title,
+.frame[data-i="12"] .frame-title{color:#080808}
+.frame[data-i="1"] .frame-body,
+.frame[data-i="4"] .frame-body,
+.frame[data-i="8"] .frame-body,
+.frame[data-i="12"] .frame-body{color:rgba(8,8,8,.68)}
+.frame[data-i="1"] .pregunta,
+.frame[data-i="4"] .pregunta,
+.frame[data-i="8"] .pregunta,
+.frame[data-i="12"] .pregunta{color:rgba(8,8,8,.5)}
+
+.frame[data-i="2"] .frame-label,
+.frame[data-i="6"] .frame-label,
+.frame[data-i="10"] .frame-label{color:rgba(8,8,8,.45)}
+.frame[data-i="2"] .frame-title,
+.frame[data-i="6"] .frame-title,
+.frame[data-i="10"] .frame-title{color:#080808}
+.frame[data-i="2"] .frame-body,
+.frame[data-i="6"] .frame-body,
+.frame[data-i="10"] .frame-body{color:rgba(8,8,8,.72)}
+.frame[data-i="2"] .pregunta,
+.frame[data-i="6"] .pregunta,
+.frame[data-i="10"] .pregunta{color:rgba(8,8,8,.55)}
+
+/* imagen de fondo por frame — ponés la ruta de cada asset aquí */
+.frame-bg{
+  position:absolute;inset:0;z-index:0;
+  background-size:cover;background-position:center;
+  opacity:0;transition:opacity 1.4s ease;
+}
+/* Ejemplo: .frame[data-i="0"] .frame-bg{background-image:url('assets/frame-01.jpg');opacity:.35} */
+
+/* ── CONTENIDO ── */
+.frame-content{
+  position:relative;z-index:2;
+  text-align:center;max-width:760px;width:100%;
+}
+.frame-label{
+  font-size:8px;letter-spacing:.22em;text-transform:uppercase;
+  color:rgba(244,241,232,.28);margin-bottom:1.5rem;font-weight:300;
+}
+.frame-title{
+  font-family:var(--fraktur);
+  font-size:5.8rem;
+  line-height:1.04;color:var(--papel);
+  margin-bottom:1.3rem;
+  opacity:0;transform:translateY(22px);
+  transition:opacity .9s ease .15s, transform .9s ease .15s;
+}
+.frame-body{
+  font-size:.95rem;
+  line-height:1.9;
+  color:rgba(244,241,232,.68);
+  max-width:580px;margin:0 auto;
+  font-weight:300;
+  opacity:0;transform:translateY(14px);
+  transition:opacity .8s ease .38s, transform .8s ease .38s;
+}
+.pregunta{
+  font-size:1.1rem;
+  letter-spacing:.05em;font-weight:300;
+  color:rgba(244,241,232,.45);
+  margin-bottom:.7rem;
+  opacity:0;
+  transition:opacity .7s ease .5s;
+}
+.frame.active .frame-title,
+.frame.active .frame-body,
+.frame.active .pregunta{opacity:1;transform:translateY(0)}
+
+/* portada logo */
+.portada-logo{
+  width:120px;height:auto;
+  margin:0 auto 1.6rem;
+  /* filter:brightness(0) invert(1); */
+  opacity:0;transform:translateY(-14px) scale(.9);
+  transition:opacity 1.1s ease .05s, transform 1.1s ease .05s;
+}
+.frame.active .portada-logo{opacity:1;transform:none}
+
+/* frame especial: pausa visual */
+.pausa-dot{
+  font-family:var(--fraktur);
+  font-size:9rem;
+  letter-spacing:-.02em;
+  opacity:0;
+  transition:opacity 1s ease .2s;
+}
+.frame.active .pausa-dot{opacity:1}
+
+/* frame 13: "Pitazo Inicial" */
+.pitazo{
+  font-family:var(--fraktur);
+  font-size:8rem;
+  line-height:1;color:#080808;
+  opacity:0;transform:scale(.93);
+  transition:opacity 1s ease .1s, transform 1s ease .1s;
+}
+.frame.active .pitazo{opacity:1;transform:none}
+
+/* frame cierre: links */
+.links-col{
+  display:flex;flex-direction:column;gap:.9rem;
+  margin-top:1.8rem;align-items:center;
+}
+.link-item{
+  display:flex;align-items:center;gap:.75rem;
+  font-size:.8rem;letter-spacing:.07em;
+  color:var(--papel);text-decoration:none;
+  opacity:.45;transition:opacity .3s, color .3s;
+  border-bottom:.5px solid rgba(244,241,232,.15);
+  padding-bottom:.45rem;width:240px;
+}
+.link-item:hover{opacity:1;color:var(--amarillo)}
+.link-dot{
+  width:7px;height:7px;border-radius:50%;
+  background:var(--amarillo);flex-shrink:0;
+}
+.credit-name{
+  font-family:var(--fraktur);
+  font-size:clamp(1.8rem,4vw,3.5rem);
+  color:var(--amarillo);margin-top:1.8rem;
+  opacity:0;transition:opacity 1s ease .65s;
+}
+.frame.active .credit-name{opacity:1}
+.credit-sub{
+  font-size:.72rem;letter-spacing:.18em;
+  opacity:.35;margin-top:.5rem;text-transform:uppercase;
+}
+.social-row{
+  display:flex;gap:1.4rem;justify-content:center;margin-top:1.4rem;
+}
+.social-icon{
+  width:36px;height:36px;border-radius:50%;
+  border:.5px solid rgba(244,241,232,.2);
+  display:flex;align-items:center;justify-content:center;
+  text-decoration:none;color:var(--papel);
+  font-size:.72rem;letter-spacing:.1em;
+  opacity:.4;transition:opacity .3s, border-color .3s;
+}
+.social-icon:hover{opacity:1;border-color:var(--amarillo)}
+
+/* ── FRISO ── */
+.friso-wrap{
+  position:fixed;bottom:0;left:0;width:1440px;height:102px;
+  z-index:100;overflow:hidden;pointer-events:none;
+  border-top:.5px solid rgba(245,200,0,.07);
+}
+.friso-track{
+  display:flex;align-items:flex-end;height:100%;
+  animation:march 20s linear infinite;
+  width:max-content;
+}
+@keyframes march{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.fu{width:68px;height:94px;flex-shrink:0}
+.fu svg{width:100%;height:100%}
+
+/* ── MENÚ OVERLAY ── */
+.menu-overlay{
+  position:fixed;inset:0;width:1440px;z-index:190;
+  background:rgba(8,8,8,.97);backdrop-filter:blur(12px);
+  display:flex;align-items:center;justify-content:center;flex-direction:column;gap:2rem;
+  opacity:0;pointer-events:none;
+  transition:opacity .5s ease;
+}
+.menu-overlay.open{opacity:1;pointer-events:all}
+.menu-nav{list-style:none;text-align:center}
+.menu-nav li{overflow:hidden;margin-bottom:.15rem}
+.menu-nav a{
+  font-family:var(--fraktur);
+  font-size:4.8rem;
+  color:var(--papel);text-decoration:none;display:block;
+  opacity:0;transform:translateY(26px);
+  transition:opacity .5s ease, transform .5s ease, color .3s;
+}
+.menu-overlay.open .menu-nav a{opacity:1;transform:none}
+.menu-nav li:nth-child(1) a{transition-delay:.04s}
+.menu-nav li:nth-child(2) a{transition-delay:.09s}
+.menu-nav li:nth-child(3) a{transition-delay:.14s}
+.menu-nav li:nth-child(4) a{transition-delay:.19s}
+.menu-nav li:nth-child(5) a{transition-delay:.24s}
+.menu-nav a:hover{color:var(--amarillo)}
+.menu-footer{
+  font-size:8px;letter-spacing:.22em;text-transform:uppercase;
+  opacity:.25;
+}
+
+/* ── SCROLL HINT ── */
+.scroll-hint{
+  position:fixed;bottom:115px;right:1.5rem;z-index:150;
+  display:flex;flex-direction:column;align-items:center;gap:5px;
+  font-size:7px;letter-spacing:.18em;text-transform:uppercase;
+  opacity:.28;transition:opacity .6s;
+}
+.scroll-hint.hidden{opacity:0;pointer-events:none}
+.hint-arr{display:flex;gap:3px}
+.hint-arr span{
+  width:1px;height:13px;background:var(--papel);
+  animation:ap 1.5s ease infinite;
+}
+.hint-arr span:nth-child(2){animation-delay:.2s}
+.hint-arr span:nth-child(3){animation-delay:.4s}
+@keyframes ap{0%,100%{opacity:.2;transform:scaleY(.5)}50%{opacity:1;transform:scaleY(1)}}
+
+/* ── DECO LINES ── */
+.deco{position:absolute;background:var(--amarillo);opacity:.1}
+</style>
+</head>
+<body>
+
+<!-- ══ INTRO ══ -->
+<div id="intro">
+  <!--
+    Logo: reemplazá src con la ruta real, por ej: src="assets/logo.png"
+    y quitá el filter si el logo ya viene en blanco o tiene transparencia correcta
+  -->
+  <img class="intro-img" src="assets/logo.png" alt="Segundo Tiempo"
+       onerror="this.style.display='none'">
+  <div class="intro-line"></div>
+  <div class="intro-title">Segundo Tiempo</div>
+</div>
+
+<!-- ══ NAV ══ -->
+<nav>
+  <div class="nav-left">
+    <button class="hamburger" id="menuBtn" aria-label="Abrir menú">
+      <span></span><span></span><span></span>
+    </button>
+    <button class="audio-btn" id="audioBtn" aria-label="Activar audio">
+      <div class="audio-dot" id="audioDot"></div>
+      <span id="audioLabel">sound</span>
+    </button>
+  </div>
+
+  <div class="nav-logo">
+    <!-- mismo logo, tamaño pequeño -->
+    <img src="assets/logo.png" alt="ST" onerror="this.style.display='none'">
+    <span class="nav-logo-text">Segundo Tiempo</span>
+  </div>
+
+  <div class="frame-ctr" id="frameCtr">01 / 14</div>
+</nav>
+
+<!-- ══ BARRA DE PROGRESO ══ -->
+<div class="progress" id="progressBar"></div>
+
+<!-- ══════════════════════════════════════════
+     TRACK — 14 FRAMES
+══════════════════════════════════════════ -->
+<div class="track" id="track">
+
+  <!-- 01 PORTADA ─────────────────────────── -->
+  <div class="frame active" data-i="0">
+    <div class="frame-bg"></div>
+    <div class="deco" style="top:0;left:0;right:0;height:1px"></div>
+    <div class="deco" style="bottom:102px;left:0;right:0;height:1px"></div>
+    <div class="frame-content">
+      <!--
+        Reemplazá src con la ruta del logo
+        Podés usar filter:brightness(0) invert(1) si el logo es oscuro
+      -->
+      <img class="portada-logo" src="assets/logo.png" alt="Segundo Tiempo"
+           onerror="this.style.display='none'">
+      <div class="frame-title">Segundo Tiempo</div>
+      <div class="frame-body">
+        Un poema visual sobre el rito del estadio.<br>
+        La bufanda que lo cuenta todo.
+      </div>
+    </div>
+  </div>
+
+  <!-- 02 El viernes el aire cambia ───────── -->
+  <div class="frame" data-i="1">
+    <div class="frame-bg"></div>
+    <div class="frame-content">
+      <div class="frame-label">01</div>
+      <div class="frame-title" style="font-size:4.6rem">
+        El viernes<br>el aire cambia
+      </div>
+      <div class="frame-body">El sábado el pecho se aprieta</div>
+    </div>
+  </div>
+
+  <!-- 03 Repasa la formación ─────────────── -->
+  <div class="frame" data-i="2">
+    <div class="frame-bg"></div>
+    <div class="frame-content">
+      <div class="frame-label">02</div>
+      <div class="frame-title">Repasa<br>la formación</div>
+      <div class="frame-body">
+        La ansiedad que se alimenta de fe.<br>
+        Soy el nudo que mi dueño se hace<br>
+        en los dedos mientras…
+      </div>
+    </div>
+  </div>
+
+  <!-- 04 Salimos ─────────────────────────── -->
+  <div class="frame" data-i="3">
+    <div class="frame-bg"></div>
+    <div class="frame-content">
+      <div class="frame-label">03</div>
+      <div class="frame-title">Salimos</div>
+      <div class="frame-body">
+        El roce con el viento en la ventana del bus me despierta.<br>
+        Siento el olor a pólvora de lejos, el olor a calle,<br>
+        el olor a la familia que no lleva mi sangre pero sí mi color.
+      </div>
+    </div>
+  </div>
+
+  <!-- 05 ¿Dispuesto a todo? ───────────────── -->
+  <div class="frame" data-i="4">
+    <div class="frame-bg"></div>
+    <div class="frame-content">
+      <div class="frame-label">04</div>
+      <div class="pregunta">¿Cómo se dice…</div>
+      <div class="frame-title" style="font-size:4rem">
+        cuando se está<br>dispuesto<br>a todo?
+      </div>
+    </div>
+  </div>
+
+  <!-- 06 Las reglas no importan ───────────── -->
+  <div class="frame" data-i="5">
+    <div class="frame-bg"></div>
+    <div class="frame-content">
+      <div class="frame-label">05</div>
+      <div class="pregunta">¿Cómo se dice…</div>
+      <div class="frame-title" style="font-size:4rem">
+        cuando las reglas<br>no importan?
+      </div>
+    </div>
+  </div>
+
+  <!-- 07 La amistad ─────────────────────── -->
+  <div class="frame" data-i="6">
+    <div class="frame-bg"></div>
+    <div class="frame-content">
+      <div class="frame-label">06</div>
+      <div class="frame-title" style="font-size:3.8rem">
+        cuando lo que<br>importa<br>es la amistad
+      </div>
+      <div class="frame-body">La tierra. La defensa del nosotros.</div>
+    </div>
+  </div>
+
+  <!-- 08 Solo hay una opción ───────────── -->
+  <div class="frame" data-i="7">
+    <div class="frame-bg"></div>
+    <div class="frame-content">
+      <div class="frame-label">07</div>
+      <div class="pregunta">¿Cómo se dice…</div>
+      <div class="frame-title" style="font-size:4rem">
+        cuando uno sabe<br>que solo hay<br>una opción?
+      </div>
+    </div>
+  </div>
+
+  <!-- 09 ¿Ganar? No. ───────────────────── -->
+  <div class="frame" data-i="8">
+    <div class="frame-bg"></div>
+    <div class="frame-content">
+      <div class="frame-label">08</div>
+      <div class="frame-title" style="font-size:6rem">
+        ¿Ganar?<br>Se dice…
+      </div>
+      <div class="frame-body" style="font-size:2.2rem;font-weight:400;color:#080808;opacity:.95;margin-top:.4rem">
+        ¡No!
+      </div>
+    </div>
+  </div>
+
+  <!-- 10 Pausa visual ─────────────────── -->
+  <div class="frame" data-i="9">
+    <div class="frame-bg"></div>
+    <div class="frame-content">
+      <div class="frame-label">09</div>
+      <div class="pausa-dot">…</div>
+    </div>
+  </div>
+
+  <!-- 11 ¡Arriba! ─────────────────────── -->
+  <div class="frame" data-i="10">
+    <div class="frame-bg"></div>
+    <div class="frame-content">
+      <div class="frame-label">10</div>
+      <div class="frame-title">¡Arriba!</div>
+      <div class="frame-body">
+        Me lanzan al cielo. Por un segundo,<br>
+        dejo de ser cuello para ser ala.<br>
+        Veo el verde del campo, veo el balón que es un sol.
+      </div>
+    </div>
+  </div>
+
+  <!-- 12 No hay pasado ────────────────── -->
+  <div class="frame" data-i="11">
+    <div class="frame-bg"></div>
+    <div class="frame-content">
+      <div class="frame-label">11</div>
+      <div class="frame-title" style="font-size:4.5rem">
+        No hay pasado,<br>no hay deudas…
+      </div>
+      <div class="frame-body">No hay hambre. Solo existe el…</div>
+    </div>
+  </div>
+
+  <!-- 13 Pitazo Inicial ────────────────── -->
+  <div class="frame" data-i="12">
+    <div class="frame-bg"></div>
+    <div class="frame-content">
+      <div class="frame-label">12</div>
+      <div class="pitazo">Pitazo<br>Inicial</div>
+    </div>
+  </div>
+
+  <!-- 14 Cierre / Créditos ─────────────── -->
+  <div class="frame" data-i="13">
+    <div class="frame-bg"></div>
+    <div class="frame-content">
+      <div class="frame-label">13 — Más de este universo</div>
+      <div class="frame-title" style="font-size:3rem">
+        Mas de Este<br>Universo…
+      </div>
+
+      <div class="links-col">
+        <!-- Reemplazá los href con las URLs reales -->
+        <a class="link-item" href="https://www.youtube.com/watch?v=MUUrW7xJSw4&list=RDMUUrW7xJSw4&start_radio=1" target="_blank" rel="noopener">
+          <div class="link-dot"></div>YouTube - Los trapos
+        </a>
+        <a class="link-item" href="https://music.apple.com/library/playlist/p.xraeDJehMYN729M" target="_blank" rel="noopener">
+          <div class="link-dot"></div>Apple Music — Cumbia, Estadio y Color
+        </a>
+        <a class="link-item" href="https://www.youtube.com/@julianstivensilvapinzon5352" target="_blank" rel="noopener">
+          <div class="link-dot"></div>YouTube — Julián Silva
+        </a>
+      </div>
+
+      <div class="credit-name">Ruben Moyano</div>
+      <div class="credit-sub">Un agradecimiento especial a nuestro héroe</div>
+
+      <div class="social-row">
+        <!-- Reemplazá href con los links reales -->
+        <a class="social-icon" href="https://www.facebook.com/ruben.moyano.908" target="_blank" rel="noopener" aria-label="Facebook">Fb</a>
+        <a class="social-icon" href="https://www.instagram.com/rubencho1946/" target="_blank" rel="noopener" aria-label="Instagram">Ig</a>
+      </div>
+    </div>
+  </div>
+
+</div>
+<!-- /TRACK -->
+
+<!-- ══ FRISO INFERIOR ══ -->
+<div class="friso-wrap">
+  <div class="friso-track" id="frisoTrack"></div>
+</div>
+
+<!-- ══ SCROLL HINT ══ -->
+<div class="scroll-hint" id="scrollHint">
+  <div class="hint-arr"><span></span><span></span><span></span></div>
+  <span>Sigame Parce</span>
+</div>
+
+<!-- ══ MENÚ OVERLAY ══ -->
+<div class="menu-overlay" id="menuOverlay">
+  <ul class="menu-nav">
+    <li><a href="#" data-frame="0">Portada</a></li>
+    <li><a href="#" data-frame="1">El Ritual</a></li>
+    <li><a href="#" data-frame="4">Las Preguntas</a></li>
+    <li><a href="#" data-frame="10">El Vuelo</a></li>
+    <li><a href="#" data-frame="13">Universo</a></li>
+  </ul>
+  <div class="menu-footer">Segundo Tiempo</div>
+</div>
+
+<!--
+  ══ AUDIO ══
+  Reemplazá src con la ruta real de la cumbia de los trapos
+  Ejemplo: src="assets/cumbia-trapos.mp3"
+-->
+<audio id="ambientAudio" loop preload="none">
+  <source src="assets/cumbia-trapos.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+/* ── CONFIG ── */
+const TOTAL = 14;
+let current = 0;
+let menuOpen = false;
+let audioOn = false;
+
+const track       = document.getElementById('track');
+const frames      = document.querySelectorAll('.frame');
+const counter     = document.getElementById('frameCtr');
+const bar         = document.getElementById('progressBar');
+const menuBtn     = document.getElementById('menuBtn');
+const menuOverlay = document.getElementById('menuOverlay');
+const audioBtn    = document.getElementById('audioBtn');
+const audioDot    = document.getElementById('audioDot');
+const audioLabel  = document.getElementById('audioLabel');
+const audioEl     = document.getElementById('ambientAudio');
+const scrollHint  = document.getElementById('scrollHint');
+const intro       = document.getElementById('intro');
+
+function pad(n){ return String(n+1).padStart(2,'0') }
+
+function goTo(idx){
+  if(idx < 0 || idx >= TOTAL) return;
+  frames[current].classList.remove('active');
+  current = idx;
+  frames[current].classList.add('active');
+  track.style.transform = `translateX(-${current * 1440}px)`;
+  counter.textContent   = `${pad(current)} / ${pad(TOTAL - 1)}`;
+  bar.style.width       = `${(current / (TOTAL - 1)) * 100}%`;
+  if(current > 0) scrollHint.classList.add('hidden');
+}
+
+function next(){ if(current < TOTAL - 1) goTo(current + 1) }
+function prev(){ if(current > 0)         goTo(current - 1) }
+
+/* ── WHEEL ── */
+let wAcc = 0, wTimer = null;
+window.addEventListener('wheel', e => {
+  e.preventDefault();
+  wAcc += e.deltaX || e.deltaY;
+  clearTimeout(wTimer);
+  wTimer = setTimeout(() => { wAcc = 0 }, 260);
+  if(Math.abs(wAcc) > 55){ wAcc > 0 ? next() : prev(); wAcc = 0 }
+}, { passive: false });
+
+/* ── TECLADO ── */
+window.addEventListener('keydown', e => {
+  if(e.key === 'ArrowRight' || e.key === 'ArrowDown') next();
+  if(e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   prev();
+  if(e.key === 'Escape' && menuOpen) toggleMenu();
+});
+
+/* ── TOUCH / SWIPE ── */
+let tx = 0;
+window.addEventListener('touchstart', e => { tx = e.touches[0].clientX }, { passive: true });
+window.addEventListener('touchend',   e => {
+  const dx = tx - e.changedTouches[0].clientX;
+  if(Math.abs(dx) > 50){ dx > 0 ? next() : prev() }
+});
+
+/* ── MENÚ ── */
+function toggleMenu(){
+  menuOpen = !menuOpen;
+  menuBtn.classList.toggle('open', menuOpen);
+  menuOverlay.classList.toggle('open', menuOpen);
+}
+menuBtn.addEventListener('click', toggleMenu);
+menuOverlay.querySelectorAll('[data-frame]').forEach(link => {
+  link.addEventListener('click', e => {
+    e.preventDefault();
+    goTo(parseInt(link.dataset.frame));
+    toggleMenu();
+  });
+});
+
+/* ── AUDIO ── */
+audioBtn.addEventListener('click', () => {
+  if(!audioOn){
+    audioEl.play().catch(() => {});
+    audioOn = true;
+    audioDot.classList.add('on');
+    audioLabel.textContent = 'mute';
+    audioBtn.style.opacity = '0.9';
+  } else {
+    audioEl.pause();
+    audioOn = false;
+    audioDot.classList.remove('on');
+    audioLabel.textContent = 'sound';
+    audioBtn.style.opacity = '0.4';
+  }
+});
+
+/* ── FRISO SVG — 6 variantes de figuras de hinchada ── */
+(function buildFriso(){
+  const variants = [
+    /* ambos brazos arriba */
+    `<svg viewBox="0 0 68 94" xmlns="http://www.w3.org/2000/svg">
+      <ellipse cx="34" cy="13" rx="7" ry="7" fill="rgba(245,200,0,.55)"/>
+      <rect x="27" y="20" width="14" height="26" rx="2" fill="rgba(245,200,0,.42)"/>
+      <line x1="27" y1="23" x2="10" y2="7"  stroke="rgba(245,200,0,.6)" stroke-width="3.5" stroke-linecap="round"/>
+      <line x1="41" y1="23" x2="58" y2="7"  stroke="rgba(245,200,0,.6)" stroke-width="3.5" stroke-linecap="round"/>
+      <rect x="28" y="46" width="6" height="27" rx="2" fill="rgba(245,200,0,.38)"/>
+      <rect x="34" y="46" width="6" height="25" rx="2" fill="rgba(245,200,0,.3)"/>
+    </svg>`,
+    /* bufanda extendida */
+    `<svg viewBox="0 0 68 94" xmlns="http://www.w3.org/2000/svg">
+      <ellipse cx="34" cy="13" rx="7" ry="7" fill="rgba(245,200,0,.58)"/>
+      <rect x="27" y="20" width="14" height="26" rx="2" fill="rgba(245,200,0,.44)"/>
+      <line x1="24" y1="19" x2="8"  y2="9"  stroke="rgba(245,200,0,.62)" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="44" y1="19" x2="60" y2="9"  stroke="rgba(245,200,0,.62)" stroke-width="2.5" stroke-linecap="round"/>
+      <rect x="6"  y="6"  width="56" height="5" rx="2.5" fill="rgba(245,200,0,.48)"/>
+      <rect x="28" y="46" width="6" height="27" rx="2" fill="rgba(245,200,0,.36)"/>
+      <rect x="34" y="46" width="6" height="24" rx="2" fill="rgba(245,200,0,.28)"/>
+    </svg>`,
+    /* bandera */
+    `<svg viewBox="0 0 68 94" xmlns="http://www.w3.org/2000/svg">
+      <ellipse cx="34" cy="13" rx="7" ry="7" fill="rgba(245,200,0,.5)"/>
+      <rect x="27" y="20" width="14" height="26" rx="2" fill="rgba(245,200,0,.4)"/>
+      <line x1="27" y1="23" x2="10" y2="35"  stroke="rgba(245,200,0,.5)" stroke-width="3" stroke-linecap="round"/>
+      <rect x="4"  y="22" width="1.5" height="28" fill="rgba(245,200,0,.62)"/>
+      <rect x="5.5" y="22" width="19" height="11" rx="1" fill="rgba(245,200,0,.52)"/>
+      <line x1="41" y1="24" x2="56" y2="30" stroke="rgba(245,200,0,.32)" stroke-width="3" stroke-linecap="round"/>
+      <rect x="28" y="46" width="6" height="27" rx="2" fill="rgba(245,200,0,.36)"/>
+      <rect x="34" y="46" width="6" height="22" rx="2" fill="rgba(245,200,0,.28)"/>
+    </svg>`,
+    /* trapo lateral */
+    `<svg viewBox="0 0 68 94" xmlns="http://www.w3.org/2000/svg">
+      <ellipse cx="34" cy="13" rx="7" ry="7" fill="rgba(245,200,0,.52)"/>
+      <rect x="27" y="20" width="14" height="26" rx="2" fill="rgba(245,200,0,.42)"/>
+      <line x1="41" y1="25" x2="60" y2="18" stroke="rgba(245,200,0,.56)" stroke-width="3" stroke-linecap="round"/>
+      <path d="M50 10 Q60 15 60 18 Q56 23 48 20 Z" fill="rgba(245,200,0,.52)"/>
+      <line x1="27" y1="28" x2="12" y2="37" stroke="rgba(245,200,0,.38)" stroke-width="3" stroke-linecap="round"/>
+      <rect x="28" y="46" width="6" height="27" rx="2" fill="rgba(245,200,0,.36)"/>
+      <rect x="34" y="46" width="6" height="28" rx="2" fill="rgba(245,200,0,.3)"/>
+    </svg>`,
+    /* brazo derecho arriba */
+    `<svg viewBox="0 0 68 94" xmlns="http://www.w3.org/2000/svg">
+      <ellipse cx="34" cy="13" rx="7" ry="7" fill="rgba(245,200,0,.54)"/>
+      <rect x="27" y="20" width="14" height="26" rx="2" fill="rgba(245,200,0,.42)"/>
+      <line x1="34" y1="22" x2="18" y2="8" stroke="rgba(245,200,0,.62)" stroke-width="3.5" stroke-linecap="round"/>
+      <line x1="41" y1="30" x2="54" y2="35" stroke="rgba(245,200,0,.36)" stroke-width="3" stroke-linecap="round"/>
+      <rect x="28" y="46" width="6" height="27" rx="2" fill="rgba(245,200,0,.38)"/>
+      <rect x="34" y="46" width="6" height="25" rx="2" fill="rgba(245,200,0,.3)"/>
+    </svg>`,
+    /* agachado / celebrando */
+    `<svg viewBox="0 0 68 94" xmlns="http://www.w3.org/2000/svg">
+      <ellipse cx="34" cy="32" rx="7" ry="7" fill="rgba(245,200,0,.46)"/>
+      <rect x="27" y="39" width="14" height="18" rx="2" fill="rgba(245,200,0,.38)"/>
+      <line x1="27" y1="44" x2="14" y2="53" stroke="rgba(245,200,0,.42)" stroke-width="3" stroke-linecap="round"/>
+      <line x1="41" y1="44" x2="54" y2="53" stroke="rgba(245,200,0,.36)" stroke-width="3" stroke-linecap="round"/>
+      <path d="M27 57 Q23 70 20 80" stroke="rgba(245,200,0,.38)" stroke-width="4" stroke-linecap="round" fill="none"/>
+      <path d="M41 57 Q45 70 48 80" stroke="rgba(245,200,0,.32)" stroke-width="4" stroke-linecap="round" fill="none"/>
+    </svg>`,
+  ];
+
+  const ft = document.getElementById('frisoTrack');
+  let html = '';
+  for(let i = 0; i < 44; i++){
+    html += `<div class="fu">${variants[i % variants.length]}</div>`;
+  }
+  ft.innerHTML = html;
+})();
+
+/* ── INTRO ── */
+setTimeout(() => { intro.classList.add('done') }, 2700);
+</script>
+</body>
+</html>
